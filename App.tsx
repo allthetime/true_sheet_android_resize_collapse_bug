@@ -1,45 +1,54 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useRef, useState, useEffect } from 'react';
+import { Button, View, Text, StyleSheet } from 'react-native';
+import { TrueSheet } from '@lodev09/react-native-true-sheet';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+export default function MinimalRepro() {
+  const sheetRef = useRef<TrueSheet>(null);
+  const [mode, setMode] = useState<'A' | 'B'>('A');
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
+  // Trigger resize when mode changes
+  useEffect(() => {
+    if (mode === 'A') {
+      sheetRef.current?.resize(0);
+    } else {
+      sheetRef.current?.resize(1); // Resize to detent index 1 (50%)
+    }
+  }, [mode]);
 
   return (
     <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
+      <Button title="Resize to Detent 1 (50%)" onPress={() => setMode('B')} />
+      <Button title="Detent 0" onPress={() => setMode('A')} />
+
+      <TrueSheet
+        ref={sheetRef}
+        detents={['auto', 0.5, 1]}
+        initialDetentIndex={0}
+        dimmed={false}
+        dismissible={false}
+      >
+        {/* Swapping content triggers a layout pass mid-transition */}
+        {mode === 'A' ? (
+          <View style={[styles.content]}>
+            <Text>:)</Text>
+          </View>
+        ) : (
+          <View style={[styles.content, { height: 300 }]}>
+            <Text>:(</Text>
+          </View>
+        )}
+      </TrueSheet>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  content: {
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#eee',
+    height: 60,
   },
 });
-
-export default App;
