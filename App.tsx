@@ -22,14 +22,14 @@ export default function MinimalRepro() {
 
       <TrueSheet
         ref={sheetRef}
-        detents={['auto', 0.5, 1]}
+        detents={[0.1, 0.5, 1]} // Use numeric detent 0
         initialDetentIndex={0}
         dimmed={false}
         dismissible={false}
       >
         {/* Swapping content triggers a layout pass mid-transition */}
         {mode === 'A' ? (
-          <View style={[styles.content]}>
+          <View style={[styles.content, { height: 100 }]}>
             <Text>:)</Text>
           </View>
         ) : (
